@@ -1,1 +1,38 @@
+# Brainstorming & Ideation Phase
 
+## Project Title
+**Pocket Smart AI: Your Smart Budget Recommendation Assistant**
+
+---
+
+## 1. Problem Statement
+Many individuals struggle with personal finance management due to complex interfaces, time-consuming manual entry, and lack of tailored advice. Traditional budgeting applications often focus solely on historical tracking without offering proactive, intelligent recommendations to modify future spending patterns.
+
+---
+
+## 2. Target Audience
+* **Students & Young Adults:** Learning to manage income, track daily spending, and plan tight monthly budgets.
+* **Salaried Professionals:** Looking for automated tracking, smart savings suggestions, and dynamic investment advice.
+* **Freelancers & Variable-Income Workers:** Requiring flexible budget allocation based on fluctuating monthly earnings.
+
+---
+
+## 3. Key Feature Brainstorming
+
+### Core Capabilities (MVP)
+* **Automated Expense Categorization:** ML model to parse and categorize transactions instantly.
+* **Smart Budget Generator:** Algorithmic calculation of ideal monthly spending limits based on income and past history.
+* **Real-time Alerting System:** Push notifications when approaching or exceeding category limits.
+
+### Advanced AI Features
+* **Nudge Analytics & Insights:** Actionable prompts (e.g., *"Reducing takeout by 10% saves $45 toward your emergency fund"*).
+* **Predictive Cash-Flow Forecasting:** Forecasting upcoming balance limits to prevent over-drafting.
+* **Anomaly & Subscription Tracking:** Automatic flags for recurring price hikes or duplicate charges.
+
+---
+
+## 4. Technology Stack
+* **Frontend:** React / React Native / Flutter
+* **Backend:** Node.js / Python (FastAPI / Flask)
+* **Database:** PostgreSQL / MongoDB
+* **Machine Learning / AI:** Python (Scikit-Learn, Pandas, OpenAI API / Llama)
