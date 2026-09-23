@@ -1,1 +1,81 @@
+# Project Testing Phase
 
+## Project Title
+**Pocket Smart AI: Your Smart Budget Recommendation Assistant**
+
+---
+
+## 1. Testing Strategy & Objectives
+The **Project Testing Phase** validates that **Pocket Smart AI** meets all functional, analytical, performance, and security requirements. Testing covers API behavior, backend logic, transaction processing speed, and model recommendation accuracy.
+
+---
+
+## 2. Test Plan & Execution Categories
+
+### 2.1 Unit Testing
+* **Objective:** Verify individual backend functions, models, and AI engine calculations in isolation.
+* **Scope:** 
+  * Total spent sum calculations.
+  * Remaining budget differential checks.
+  * Category spending percentage threshold alerts (e.g., >30% trigger).
+* **Tooling:** `pytest` / `unittest` for Python API modules.
+
+### 2.2 Integration Testing
+* **Objective:** Ensure smooth API request/response communication and database interactions.
+* **Scope:** 
+  * POST request execution to `/api/v1/recommendations`.
+  * User profile loading and database session initialization.
+  * Malformed JSON payload handlings and 500/400 error returns.
+
+### 2.3 AI Model & Logic Verification
+* **Objective:** Ensure automated recommendation insights provide accurate, contextual output without edge-case failures.
+* **Scope:**
+  * Validate output logic when total spent exceeds effective income (Warning status verification).
+  * Check boundary values (e.g., zero income, empty transaction lists, negative transaction amounts).
+
+### 2.4 Security & Performance Testing
+* **Objective:** Guarantee data confidentiality and optimal loading response times.
+* **Scope:**
+  * **Latency:** Validate endpoint processing time remains under 2 seconds.
+  * **Data Privacy:** Confirm standard password hash functions and secure storage parameters for transaction records.
+
+---
+
+## 3. Test Cases & Execution Matrix
+
+| Test Case ID | Feature / Component | Input Scenario | Expected Outcome | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **TC-01** | Recommendation Engine | Normal spending within target limits ($150 spend, $4000 income, $800 savings goal) | Returns calculated values with positive budget status message. | **PASSED** |
+| **TC-02** | Recommendation Engine | Over-budget spend scenario ($3500 spend, $4000 income, $800 savings goal) | Triggers over-limit alert warning in `insights` array. | **PASSED** |
+| **TC-03** | High Category Spending Alert | Single category spending exceeds 30% threshold ($1200 on Rent) | Generates actionable recommendation to optimize high category spend. | **PASSED** |
+| **TC-04** | Data Validation | Request sent with missing required parameters (e.g., missing `monthly_income`) | Returns `422 Unprocessable Entity` status code. | **PASSED** |
+| **TC-05** | Empty Transaction Log | User submits profile with zero historical transactions | Returns $0 total spend and standard budget status without crash. | **PASSED** |
+
+---
+
+## 4. Automated Unit Test Code Example (`test_recommendations.py`)
+
+```python
+import pytest
+from datetime import date
+from main import analyze_spending_and_recommend, Transaction
+
+def test_spending_within_budget():
+    transactions = [
+        Transaction(transaction_id="t1", amount=100.0, category="Groceries", vendor="Supermarket", date=date(2026, 9, 1))
+    ]
+    response = analyze_spending_and_recommend(income=3000.0, goal=500.0, transactions=transactions)
+    
+    assert response.total_spent == 100.0
+    assert response.remaining_budget == 2400.0
+    assert "✅ Great job!" in response.insights[0]
+
+def test_spending_exceeding_budget():
+    transactions = [
+        Transaction(transaction_id="t1", amount=2600.0, category="Shopping", vendor="Mall", date=date(2026, 9, 1))
+    ]
+    response = analyze_spending_and_recommend(income=3000.0, goal=500.0, transactions=transactions)
+    
+    assert response.total_spent == 2600.0
+    assert response.remaining_budget == -100.0
+    assert "⚠️ Warning:" in response.insights[0]
