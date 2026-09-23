@@ -1,1 +1,108 @@
+# main.py - FastAPI Backend Service & AI Core Engine
 
+import datetime
+from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+
+# --- DATABASE SETUP ---
+DATABASE_URL = "sqlite:///./pocket_smart_ai.db"
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+
+    user_id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    monthly_income = Column(Float, default=0.0)
+    savings_goal = Column(Float, default=0.0)
+
+    transactions = relationship("TransactionRecord", back_populates="owner")
+
+class TransactionRecord(Base):
+    __tablename__ = "transactions"
+
+    transaction_id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.user_id"))
+    amount = Column(Float, nullable=False)
+    category = Column(String, nullable=False)
+    vendor = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+
+    owner = relationship("User", back_populates="transactions")
+
+Base.metadata.create_all(bind=engine)
+
+# --- PYDANTIC SCHEMAS ---
+class Transaction(BaseModel):
+    transaction_id: str
+    amount: float
+    category: str
+    vendor: str
+    date: datetime.date
+
+class BudgetRequest(BaseModel):
+    user_id: str
+    monthly_income: float
+    savings_goal: float
+    transactions: List[Transaction]
+
+class RecommendationResponse(BaseModel):
+    total_spent: float
+    remaining_budget: float
+    category_summary: dict
+    insights: List[str]
+
+# --- FASTAPI APP SETUP ---
+app = FastAPI(title="Pocket Smart AI - Backend Services")
+
+# --- AI RECOMMENDATION LOGIC ---
+def analyze_spending_and_recommend(income: float, goal: float, transactions: List[Transaction]) -> RecommendationResponse:
+    category_totals = {}
+    total_spent = 0.0
+
+    for t in transactions:
+        total_spent += t.amount
+        category_totals[t.category] = category_totals.get(t.category, 0.0) + t.amount
+
+    effective_budget = income - goal
+    remaining = effective_budget - total_spent
+    insights = []
+
+    # General Spend Limits Analysis
+    if total_spent > effective_budget:
+        insights.append(f"⚠️ Warning: You have exceeded your targeted spend limit by ${abs(remaining):.2f}.")
+    else:
+        insights.append(f"✅ Great job! You are currently within your target spend limit.")
+
+    # High-Spend Category Identification
+    for category, amount in category_totals.items():
+        if effective_budget > 0 and amount > (effective_budget * 0.30):
+            insights.append(
+                f"💡 AI Recommendation: Spending in '{category}' (${amount:.2f}) accounts for over 30% of your allowance. "
+                f"Consider lowering it by 10% to meet your saving target faster."
+            )
+
+    return RecommendationResponse(
+        total_spent=total_spent,
+        remaining_budget=remaining,
+        category_summary=category_totals,
+        insights=insights
+    )
+
+# --- API ROUTES ---
+@app.post("/api/v1/recommendations", response_model=RecommendationResponse)
+def get_budget_recommendations(request: BudgetRequest):
+    try:
+        return analyze_spending_and_recommend(
+            income=request.monthly_income,
+            goal=request.savings_goal,
+            transactions=request.transactions
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
