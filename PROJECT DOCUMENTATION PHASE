@@ -1,1 +1,65 @@
+# Project Documentation Phase
 
+## Project Title
+**Pocket Smart AI: Your Smart Budget Recommendation Assistant**
+
+---
+
+## 1. Project Overview & Summary
+**Pocket Smart AI** is an intelligent personal finance management tool designed to automate expense tracking and deliver personalized, real-time budgeting recommendations. By analyzing user transaction history against set financial goals and income levels, the application transforms raw spending data into actionable insights to improve long-term financial health.
+
+---
+
+## 2. System Architecture & Component Interactions
+The system utilizes a modular, microservice-based architecture:
+
+* **Frontend Layer (Client):** Developed with React / React Native, delivering an interactive user interface for dashboards, visualizations, and budget settings.
+* **Backend API Gateway:** Built with FastAPI (Python), serving RESTful API endpoints for user authentication, transaction management, and analytics processing.
+* **AI/ML Engine:** Integrates rule-based scoring models alongside LLM API calls to perform real-time expense categorization, anomaly detection, and spending advice generation.
+* **Database Layer:** Managed via SQLite/PostgreSQL using SQLAlchemy ORM to securely persist user profiles, bank transaction logs, and historical recommendations.
+
+---
+
+## 3. User Guide & Core Workflows
+
+### 3.1 Initial Setup
+1. Register a new user account and set up baseline parameters: **Monthly Income** and **Monthly Savings Goal**.
+2. Connect bank account transaction feeds or upload monthly transaction logs in CSV/JSON format.
+
+### 3.2 Dynamic Budgeting & AI Recommendations
+1. Access the **Dashboard** to view total monthly spend, target remaining allowance, and category breakdowns.
+2. Review the **Smart Insights** section to receive actionable nudges (e.g., spending thresholds exceeded, recurring subscription flags, and suggested category cuts).
+
+---
+
+## 4. API Reference Documentation
+
+### POST `/api/v1/recommendations`
+Generates real-time financial insights based on input income, savings target, and recent transactions.
+
+* **Request Body Schema:**
+```json
+{
+  "user_id": "string",
+  "monthly_income": 4000.00,
+  "savings_goal": 800.00,
+  "transactions": [
+    {
+      "transaction_id": "string",
+      "amount": 150.00,
+      "category": "Dining",
+      "vendor": "Bistro",
+      "date": "YYYY-MM-DD"
+    }
+  ]
+}
+{
+  "total_spent": 150.00,
+  "remaining_budget": 3050.00,
+  "category_summary": {
+    "Dining": 150.00
+  },
+  "insights": [
+    "✅ Great job! You are currently within your target spend limit."
+  ]
+}
