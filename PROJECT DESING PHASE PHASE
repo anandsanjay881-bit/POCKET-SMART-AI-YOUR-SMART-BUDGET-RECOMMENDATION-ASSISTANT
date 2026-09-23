@@ -1,1 +1,43 @@
+# Project Design Phase
 
+## Project Title
+**Pocket Smart AI: Your Smart Budget Recommendation Assistant**
+
+---
+
+## 1. System Architecture Design
+The application follows a client-server microservices/API-driven architecture to ensure scalability and real-time processing of financial data.
+
+* **Client Layer:** Cross-platform mobile/web frontend providing real-time data visualisations and recommendations.
+* **API Gateway / Backend Layer:** Handles authentication, routes requests, and manages transaction workflows.
+* **AI Engine Microservice:** Processes user transaction data using ML models and natural language prompts to generate personalized budgeting insights.
+* **Database Layer:** Secure, encrypted storage for user profiles, historical transactions, and AI-generated recommendation logs.
+
+---
+
+## 2. User Interface (UI) & User Experience (UX) Design
+
+### Key Screens
+1. **Dashboard:** High-level summary showing total income, total spent, remaining budget, and quick access to AI insights.
+2. **Transaction Manager:** Detailed log of categorized expenses with manually adjustable categories and manual import tools.
+3. **Smart Budget & Recommendations Tab:** Real-time feedback, dynamic budget sliders, and personalized spending alerts.
+4. **Analytics & Goals:** Visual charts (pie charts, line graphs) tracking savings goals and multi-month expense trends.
+
+---
+
+## 3. Database Schema Design (Entity Relationship Outline)
+
+* **User Entity:** `user_id`, `name`, `email`, `password_hash`, `created_at`
+* **Account Entity:** `account_id`, `user_id`, `bank_name`, `account_type`, `balance`
+* **Transaction Entity:** `transaction_id`, `account_id`, `amount`, `category`, `vendor`, `date`
+* **Budget Entity:** `budget_id`, `user_id`, `category`, `allocated_amount`, `period`
+* **Recommendation Log:** `rec_id`, `user_id`, `insight_text`, `action_status`, `timestamp`
+
+---
+
+## 4. AI / ML Pipeline Design
+
+1. **Data Ingestion & Preprocessing:** Clean transaction records, standardize vendor labels, and tokenize transaction descriptors.
+2. **Classification Model:** Supervised ML model (e.g., Random Forest or DistilBERT) to auto-assign category labels.
+3. **Recommendation Engine:** Rule-based heuristics combined with Generative AI / LLM APIs to generate dynamic, contextual advice based on current vs. historical spend thresholds.
+4. **Feedback Loop:** User actions (accepting/rejecting recommendations) re-train models to improve future suggestion accuracy.
